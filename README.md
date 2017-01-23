@@ -1,2 +1,2 @@
-# Zimbra stuff
-Various Zimbra related scripts that I occasionally write. 
+# Sysadmin stuff
+Various scripts that I`ve made as a Sysadmin. 
