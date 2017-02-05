@@ -6,7 +6,7 @@ Este script, permite ejecutar varios comandos en diferentes switches administrab
 ```
 USO: switch-cmd-remoto.py [OPCIONES]
 
--u: Nombre de usuario\\      
+-u: Nombre de usuario     
 -f [ARCHIVO]: Lee las IPs del archivo indicado. 
 -c "comando1,comando2,comando3": Comando/s a ejecutar.
 ```
