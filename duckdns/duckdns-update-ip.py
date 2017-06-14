@@ -62,9 +62,9 @@ def SendRequest(url):
       if state == 'NOCHANGE':
         print "%s - Your IP %s has not changed. Nothing to update!." % ( DateTime, ip_addr )
       elif state == 'UPDATED':
-        print "Your IP has been updated!. Your new IP is: %s ." % (ip_addr)
+        print "Your IP has been updated!. Your new IP is: %s ." % (DateTime, ip_addr)
     elif query_response == 'KO':
-      print "ERROR: bad response recieved. Check your parameters for the URL."
+      print "ERROR: bad response recieved. Check your domain and token in your configuration file!."
 
   except requests.exceptions.Timeout:
     print "Timed out for request!."   
