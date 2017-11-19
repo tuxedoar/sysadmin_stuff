@@ -37,7 +37,7 @@ switches = []
 user = ''
 hosts_file = ''
 cmd = []
-
+port=22
 
 def main():
   parser = argparse.ArgumentParser(
@@ -48,15 +48,23 @@ def main():
                       help='User to login on remote hosts')
   parser.add_argument('-c', '--commands', required=True, action='store',
                       help='Comma separated commands to be executed on remote hosts')
+  parser.add_argument('-p', '--port', required=False, action='store',
+                      help='Specify SSH port to connect to hosts')
   args = parser.parse_args()
 
   if args.file != None and args.user != None and args.commands != None:
     user=args.user
     hosts_file=args.file
     cmd=args.commands
-
-    ReadFile(hosts_file)
-    SSHsession(user, cmd)
+    if args.port:
+      # Get rid of this global variable in the future!. 
+      global port
+      port=args.port
+    try:
+      ReadFile(hosts_file)
+      SSHsession(user, cmd)
+    except KeyboardInterrupt:
+      print "\n\nExecution was interrupted!"
   else: 
     parser.print_help()
 
@@ -72,7 +80,7 @@ def SSHsession(user, cmd):
       print "\n Connecting to %s with the user %s ... \n" % (ip, user) 
       MySession = paramiko.SSHClient()
       MySession.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-      MySession.connect(ip, username=user, password=pw, look_for_keys=False, allow_agent=False, timeout=10)
+      MySession.connect(ip, username=user, password=pw, port=port, look_for_keys=False, allow_agent=False, timeout=10)
       timeout_modifier = 1.1  # wait 10% longer than usual
 
       UserCommands = MySession.invoke_shell()
