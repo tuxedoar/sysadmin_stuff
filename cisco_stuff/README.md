@@ -10,7 +10,7 @@ Even though this script was aimed to be used with managed switches, it should ac
 ##### Syntax
 
 ```
-usage: switch-cmd-manager.py [-h] -f FILE -u USER -c COMMANDS
+usage: switch-cmd-manager.py [-h] -f FILE -u USER -c COMMANDS [-p PORT]
 
 Exceute remote commands on several managed switches or servers.
 
@@ -21,6 +21,7 @@ optional arguments:
   -c COMMANDS, --commands COMMANDS
                         Comma separated commands to be executed on remote
                         hosts
+  -p PORT, --port PORT  Specify SSH port to connect to hosts
 ```
 
 ##### Example
@@ -40,7 +41,7 @@ Si bien este script fue pensado para usarse con switches administrables, deberí
 
 ##### Sintáxis
 ```
-usage: switch-cmd-manager.py [-h] -f FILE -u USER -c COMMANDS
+usage: switch-cmd-manager.py [-h] -f FILE -u USER -c COMMANDS [-p PORT]
 
 Exceute remote commands on several managed switches or servers.
 
@@ -51,6 +52,7 @@ optional arguments:
   -c COMMANDS, --commands COMMANDS
                         Comma separated commands to be executed on remote
                         hosts
+  -p PORT, --port PORT  Specify SSH port to connect to hosts
 ```
 
 ##### Ejemplo
