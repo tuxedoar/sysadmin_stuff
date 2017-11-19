@@ -78,7 +78,7 @@ def SSHsession(user, cmd):
       UserCommands = MySession.invoke_shell()
       sleep(2)
       for c in cmd:
-        # Si las hay, remuevo comillas dobles!.
+        # Remove double quotes!.
         c = c.replace('\"','')
         UserCommands.send(c+'\n')
       
