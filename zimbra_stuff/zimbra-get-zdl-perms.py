@@ -1,122 +1,161 @@
 #!/usr/bin/env python
 """
-This script allows to query which Zimbra accounts has 'sendToDistList' permissions over a certain Zimbra Distribution List. You can also list all (both dynamic and static) the Zimbra Distribution Lists available. 
+This script allows to query which Zimbra accounts has 'sendToDistList' permissions over a certain 
+Zimbra Distribution List (ZDL). You can also list all the Zimbra Distribution Lists (both dynamic and static) available. 
 
---
-
-Permite consultar las cuentas de Zimbra autorizadas a realizar envios en una lista de correo determinada. Tambien se pueden listar todas las listas de correo existentes.
 """
-
+import argparse
 import ldap
 import sys
-import getopt
+import getpass
 
-server = 'zimbra.undominio.com.ar'
-who = 'uid=zimbra,cn=admins,cn=zimbra'
-cred = 'clave_secreta'
+authorized_id = []
+authorized_accounts = []
+lists = []
 
-id_autorizados = []
-autorizados = []
-listas = []
+class MenuHandler:
+  parser = argparse.ArgumentParser(
+      description='Query Zimbra Distribution Lists - ZDL')
+  parser.add_argument('-s', '--server', required=True, action='store', 
+                      help='IP address or domain name of the Zimbra server')
+  parser.add_argument('-b', '--basedn', required=True, action='store',
+                      help='Specify the searchbase or base DN of the Zimbra LDAP server')
+  parser.add_argument('-u', '--userdn', required=True, action='store',
+                      help='DN admin user of the Zimbra LDAP server')
+  parser.add_argument('-l', '--zdlperms', required=False, action='store',
+                      help='Query which Zimbra accounts have permissions to send mails to the given ZDL')
+  parser.add_argument('-L', '--zdllists', required=False, action='store_true',
+                      help='List both static and dynamic existing ZDLs')
+  args = parser.parse_args()
 
-lista_elegida=''
+  # Check if optional (but still either of them mandatory) arguments are present. 
+  if args.zdlperms or args.zdllists:
+    try:
+      pw = getpass.getpass('\nPlease, enter your Zimbra credentials: ')
+    except KeyboardInterrupt:
+      print "\nExecution has been interrupted!."
+      sys.exit()
+  else:
+    parser.print_help()
+    sys.exit()
+   
 
-l = ldap.open(server)
-l.simple_bind_s(who, cred)
+class LDAPhandler(MenuHandler):
 
-usuarios = l.search_s('ou=people,dc=undominio,dc=com,dc=ar', 
+  a = MenuHandler()
+  
+  server = a.args.server
+  ldapadmin = a.args.userdn
+  basedn = a.args.basedn
+
+  try:
+    l = ldap.open(server)
+    l.simple_bind_s(ldapadmin, a.pw)
+  except ldap.UNWILLING_TO_PERFORM, e:
+    print "ERROR - %s . %s " % (e[0]['info'], e[0]['desc'])
+    sys.exit()
+  except ldap.INVALID_CREDENTIALS, e:
+    print "ERROR - %s " % (e[0]['desc'])
+    sys.exit()
+
+  groupsBaseDN = "cn=groups,"+basedn   
+  peopleBaseDN = "ou=people,"+basedn   
+
+  users = l.search_s(peopleBaseDN, 
                    ldap.SCOPE_SUBTREE,
                    'objectClass=inetOrgPerson');
+    
+  dynamic_lists = l.search_s(groupsBaseDN, 
+                       ldap.SCOPE_SUBTREE,
+                       'objectClass=zimbraGroup',
+                       ['cn','zimbraACE']);
 
-listas_dinamicas = l.search_s('cn=groups,dc=undominio,dc=com,dc=ar', 
-                   ldap.SCOPE_SUBTREE,
-                   'objectClass=zimbraGroup',
-                   ['cn','zimbraACE']);
-listas_estaticas =  l.search_s('ou=people,dc=undominio,dc=com,dc=ar', 
+  static_lists =  l.search_s(peopleBaseDN, 
                    ldap.SCOPE_SUBTREE,
                    'objectClass=zimbraDistributionList',
                    ['uid','zimbraACE']);
 
-# Obtengo entradas y atributos de los grupos
-for i in listas_dinamicas:
-        dn = i[0]
-        attrs = i[1]
+
+def main():
+
+  m = LDAPhandler()
+  server = m.args.server
+  basedn = m.args.basedn
+  ldapadmin = m.args.userdn
+
+  getLists()
+
+  if m.args.zdlperms:
+    chosen_list = m.args.zdlperms
+    list_properties(chosen_list)
+    get_users()
+  elif m.args.zdllists:
+    get_lists()
+  else:
+    pass
+
+def getLists():
+  L = LDAPhandler()
+  dynamic_lists = L.dynamic_lists
+  static_lists = L.static_lists
+  # Get entries and attributes of groups.
+  for i in dynamic_lists:
+    dn = i[0]
+    attrs = i[1]
         
-        lista = attrs['cn'][0]
-        if 'zimbraACE' in attrs:
-                idsauth = attrs['zimbraACE']
+    list = attrs['cn'][0]
+    if 'zimbraACE' in attrs:
+      idsauth = attrs['zimbraACE']
+    for authorized in idsauth:
+      authorized.append((list, authorized))
+    lists.append(list)
 
-        for autorizado in idsauth:
-                id_autorizados.append((lista, autorizado))
+  for i in static_lists:
+    dn = i[0]
+    attrs = i[1]
 
-        listas.append(lista)
+    list = attrs['uid'][0]
+    if 'zimbraACE' in attrs: 
+      idsauth = attrs['zimbraACE']
+    for authorized in idsauth:
+      authorized_id.append((list, authorized))
+    lists.append(list)
 
-for i in listas_estaticas:
-        dn = i[0]
-        attrs = i[1]
+# Extract users IDs with permissions on the ZDL and store them on a list
+def list_properties(chosen_list):
+  # Check if chosen list is valid. 
+  if chosen_list in lists:
+    pass
+  else:
+    print "The list %s doesn't exist!." % (chosen_list)
+    sys.exit(2)
+  for props in  authorized:
+    if chosen_list in props:
+      if not '-sendToDistList' in props[1] and 'sendToDistList' in props[1]:
+        permission = props[1].split(' ')
+        authorized = permission[0]
+        authorized_accounts.append(authorized)
 
-        lista = attrs['uid'][0]
-        if 'zimbraACE' in attrs: 
-                idsauth = attrs['zimbraACE']
+# With each gathered user ID, search those, among all the users and get their identities!.   
+def get_users():
+  u = LDAPhandler()
+  users = u.users
+  chosen_list = u.args.zdlperms
+  print "\nAuthorized accounts to send mails to %s :\n " % (chosen_list)             
 
-        for autorizado in idsauth:
-                id_autorizados.append((lista, autorizado))
-
-        listas.append(lista)
-
-# Extraigo el ID de los usuarios con  permisos en la lista y los almaceno en una lista. 
-def propiedades_lista(lista_elegida):
-        # Valido la lista elegida!. 
-        if lista_elegida in listas:
-                pass
-        else:
-                print "La lista indicada NO existe!."
-                sys.exit(2)
-        for props in  id_autorizados:
-                if lista_elegida in props:
-                        if not '-sendToDistList' in props[1] and 'sendToDistList' in props[1]:
-                                permiso = props[1].split(' ')
-                                autorizado = permiso[0]
-                                autorizados.append(autorizado)
-
-# Con el ID obtenido de cada usuario, busco ese ID entre todos los usuarios y obtengo la identidad de cada uno!.                
-def obtener_usuarios():
-        print "\nCuentas autorizadas a realizar envios a " + lista_elegida + ": \n"             
-
-        for item in usuarios:
-                dn = item[0]
-                attrs = item[1]
+  for item in users:
+    dn = item[0]
+    attrs = item[1]
         
-                for autorizado in autorizados:
-                        if autorizado in attrs['zimbraId'] and 'uid' in attrs:
-                                cuenta = attrs['uid']
-                                print cuenta[0]
-                                break
+    for authorized in authorized_accounts:
+      if authorized in attrs['zimbraId'] and 'uid' in attrs:
+        account = attrs['uid']
+        print account[0]
+        break
 
-def ver_listas():
-        for lista in listas:
-                print lista
+def get_lists():
+  for list in lists:
+    print list
 
-def uso():
-        print """
-        USO: zimbra-query-list-perms.py -l [LISTA]
-
-        -l: Consulta los permisos para la lista de correo indicada.
-        -L: Muestra un listado de las listas de correo existentes.        
-        """
-
-try:
-        myopts, args = getopt.getopt(sys.argv[1:],"l:L")
-except:
-        print "Uso incorrecto!"
-        uso()
-        sys.exit(2)
-        
-for o, a in myopts:
-        if o == '-l':
-                lista_elegida=sys.argv[2]
-                propiedades_lista(lista_elegida)
-                obtener_usuarios()
-        elif o == '-L':
-                print "\nListas de correo disponibles:\n"
-                ver_listas()
+if __name__ == "__main__":
+  main() 
