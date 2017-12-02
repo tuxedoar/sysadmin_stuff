@@ -18,9 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 DESCRIPTION
 
-This script allows to query which Zimbra accounts has 'sendToDistList'
-permissions over a certain Zimbra Distribution List (ZDL). You can also 
-list all the Zimbra Distribution Lists (both dynamic and static) available. 
+This script allows to query which Zimbra accounts have permissions to send 
+mails to a certain Zimbra Distribution List (ZDL). You can also list all 
+the ZDLs available (both dynamic and static).
 
 """
 
