@@ -1,9 +1,29 @@
 #!/usr/bin/env python
-"""
-This script allows to query which Zimbra accounts has 'sendToDistList' permissions over a certain 
-Zimbra Distribution List (ZDL). You can also list all the Zimbra Distribution Lists (both dynamic and static) available. 
 
 """
+Copyright 2017 by tuxedoar@gmail.com .
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+DESCRIPTION
+
+This script allows to query which Zimbra accounts has 'sendToDistList'
+permissions over a certain Zimbra Distribution List (ZDL). You can also 
+list all the Zimbra Distribution Lists (both dynamic and static) available. 
+
+"""
+
 import argparse
 import ldap
 import sys
@@ -104,10 +124,9 @@ def getLists():
     attrs = i[1]
         
     list = attrs['cn'][0]
-    if 'zimbraACE' in attrs:
-      idsauth = attrs['zimbraACE']
+    idsauth = attrs.get('zimbraACE','')
     for authorized in idsauth:
-      authorized.append((list, authorized))
+      authorized_id.append((list, authorized))
     lists.append(list)
 
   for i in static_lists:
@@ -115,8 +134,7 @@ def getLists():
     attrs = i[1]
 
     list = attrs['uid'][0]
-    if 'zimbraACE' in attrs: 
-      idsauth = attrs['zimbraACE']
+    idsauth = attrs.get('zimbraACE','')
     for authorized in idsauth:
       authorized_id.append((list, authorized))
     lists.append(list)
@@ -129,7 +147,7 @@ def list_properties(chosen_list):
   else:
     print "The list %s doesn't exist!." % (chosen_list)
     sys.exit(2)
-  for props in  authorized:
+  for props in authorized_id:
     if chosen_list in props:
       if not '-sendToDistList' in props[1] and 'sendToDistList' in props[1]:
         permission = props[1].split(' ')
