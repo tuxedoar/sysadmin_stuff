@@ -34,10 +34,9 @@ import getpass
 from socket import error
 
 switches = []
-user = ''
-hosts_file = ''
+# Store arguments for the SSH session!. 
+arguments = {'port':22}
 cmd = []
-port=22
 
 def main():
   parser = argparse.ArgumentParser(
@@ -53,26 +52,24 @@ def main():
   args = parser.parse_args()
 
   if args.file != None and args.user != None and args.commands != None:
-    user=args.user
-    hosts_file=args.file
+    arguments['user']=args.user
+    arguments['hosts_file']=args.file
     cmd=args.commands
     if args.port:
-      # Get rid of this global variable in the future!. 
-      global port
-      port=args.port
+      arguments['port']=args.port
+
     try:
-      ReadFile(hosts_file)
-      SSHsession(user, cmd)
+      ReadFile()
+      SSHsession(cmd)
     except KeyboardInterrupt:
       print "\n\nExecution was interrupted!"
   else: 
     parser.print_help()
 
-
-def SSHsession(user, cmd):
-
+def SSHsession(cmd):
   cmd = cmd.split(',')
   pw = getpass.getpass('\n Please, enter your password to access hosts: ')
+  user, port = arguments['user'], arguments['port']
 
   # Start session on each IP address in the switches list.
   for ip in switches:
@@ -108,21 +105,21 @@ def SSHsession(user, cmd):
             print "Connection timed out!. Check your network connection!."          
 
                                         
-def ReadFile(hosts_file):
+def ReadFile():
+  hosts_file = arguments['hosts_file']
 # Read the file, extract IP adresses and store them on a list.
   try:
-    file = open(hosts_file, 'r')
-    for line in file.readlines():
-      line=line.strip()
-      if line and not line.startswith('#'):
-        valid_ip = re.search("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", line)
-        if not valid_ip:
-          print "WARNING: The IP %s is ignored for not being valid!" % (line)
-        else:
-          ip = line
-          switches.append(ip)
-          
-    file.close()
+    with open(hosts_file, 'r') as file:
+      for line in file.readlines():
+        line=line.strip()
+        if line and not line.startswith('#'):
+          valid_ip = re.search("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", line)
+          if not valid_ip:
+            print "WARNING: The IP %s is ignored for not being valid!" % (line)
+          else:
+            ip = line
+            switches.append(ip)
+
   except IOError:
     print "Can't read the specified file. Make sure it exist!."
     sys.exit(2)     
