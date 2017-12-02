@@ -14,7 +14,7 @@ on your Zimbra server. Also, make sure to have the  [python-ldap](https://pypi.p
 ```
 Add help on usage here, later. 
 ```
-Note that arguments such as `-s` (server), `-b` (basedn) and `-u` (admin LDAP user) , are mandatory when using this script!. Plus, you should specify either 
+Note that arguments such as `-s` (server), `-b` (basedn) and `-u` (admin LDAP user) , are mandatory when using this script!. Plus, you must specify either 
 of the `-l` or `-L` arguments. Otherwise, it won't work!.    
 
 ##### Example
@@ -34,7 +34,7 @@ List all the existing ZDLs:
 Este script, permite consultar qué cuentas de Zimbra tienen permisos para envíar correos a una determinada "Zimbra Distribution List" (ZDL). También se 
 pueden listar todas las ZDLs existentes (tanto dinámicas como estáticas).  
 
-Para que este script funciones, se debe configurar el [usuario admin de LDAP](https://wiki.zimbra.com/wiki/Setting_zimbra_admin_password_in_LDAP), 
+Para que este script funcione, se debe configurar el [usuario admin de LDAP](https://wiki.zimbra.com/wiki/Setting_zimbra_admin_password_in_LDAP), 
 en el servidor de Zimbra. Además, asegurarse de tener instalado el paquete  [python-ldap](https://pypi.python.org/pypi/python-ldap/) en el servidor. 
 
 #### ¿Cómo se usa?
