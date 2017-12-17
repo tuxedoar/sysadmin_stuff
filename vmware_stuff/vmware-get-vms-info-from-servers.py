@@ -1,4 +1,4 @@
-#!/home/matiastepli/python-vmware/env/bin/python
+#!/usr/bin/env python
 # VMware vSphere Python SDK
 # Copyright (c) 2008-2015 VMware, Inc. All Rights Reserved.
 #
