@@ -38,17 +38,6 @@ jobs_selected = ''
 pending_jobs='not-completed'
 all_jobs='all'
 
-# Set the printer's attributes to be looked for on a dict. 
-attributes = {	'ID':'job-id',
-		'Doc':'job-name',
-		'User':'job-originating-user-name', 
-		'Printer':'job-printer-uri',
-		'IP source':'job-originating-host-name',
-		'Pages':'job-media-sheets-completed',
-		'State':'job-state-reasons',
-		'Detailed state':'job-printer-state-message'
-	}
-
 # Function to list printers.
 def list_printers():
 
@@ -78,20 +67,19 @@ def list_printers():
 def jobs_handler(jobs_selected):
   # Set the selection by jobs_selected
   jobs_selected = conn.getJobs(which_jobs=jobs_selected)
-  # Loop over jobs. 
+  print "ID\t PRINTER\t IP\t DOCUMENT\t USER\t PAGES\t STATE\t DETAILED"
   for jobs in jobs_selected:
     jobs_attrs = conn.getJobAttributes(jobs)
-    # Loop over job's attributes.
-    for attribute in jobs_attrs:
-      key, value = attribute, jobs_attrs[attribute]
-      # Loop for attributes that were set in the dictionary, early on!. 
-      for looked_attrs in attributes:
-        # Those attributes that matches with dict attrs, are shown by their keys!. 
-        if attributes[looked_attrs] in key:
-          print "%s = %s" % (looked_attrs, value)
-          break
-    print '\n'
 
+    id = jobs_attrs.get('job-id')
+    doc = jobs_attrs.get('job-name')
+    user = jobs_attrs.get('job-originating-user-name') 
+    printer =jobs_attrs.get('job-printer-uri')
+    IP = jobs_attrs.get('job-originating-host-name')
+    pages = jobs_attrs.get('job-media-sheets-completed')
+    state = jobs_attrs.get('job-state-reasons')
+    detailed_state = jobs_attrs.get('job-printer-state-message')
+    print "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t" % (id, printer, IP, doc, user, pages, state, detailed_state)
 
 def cancel_jobs():
   pending_jobs = conn.getJobs(which_jobs='not-completed') 
