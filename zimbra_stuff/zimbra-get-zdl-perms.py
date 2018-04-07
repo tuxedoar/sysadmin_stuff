@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Copyright 2017 by tuxedoar@gmail.com .
+Copyright 2018 by tuxedoar@gmail.com .
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 DESCRIPTION
 
-This script allows to query which Zimbra accounts have permissions to send 
-mails to a certain Zimbra Distribution List (ZDL). You can also list all 
+This script allows to query permissions that Zimbra accounts have over a given 
+Zimbra Distribution List (ZDL). You can also list all 
 the ZDLs available (both dynamic and static).
 
 """
@@ -31,6 +31,7 @@ import getpass
 
 authorized_id = []
 authorized_accounts = []
+sendas_auth_accounts = []
 lists = []
 
 class MenuHandler:
@@ -44,12 +45,14 @@ class MenuHandler:
                       help='DN admin user of the Zimbra LDAP server')
   parser.add_argument('-l', '--zdlperms', required=False, action='store',
                       help='Query which Zimbra accounts have permissions to send mails to the given ZDL')
+  parser.add_argument('-sa', '--sendas', required=False, action='store_true',
+                      help="Query which Zimbra accounts have the 'send as' permission to send mails on behalf of the existing ZDLs")
   parser.add_argument('-L', '--zdllists', required=False, action='store_true',
                       help='List both static and dynamic existing ZDLs')
   args = parser.parse_args()
 
   # Check if optional (but still either of them mandatory) arguments are present. 
-  if args.zdlperms or args.zdllists:
+  if args.zdlperms or args.zdllists or args.sendas:
     try:
       pw = getpass.getpass('\nPlease, enter your Zimbra credentials: ')
     except KeyboardInterrupt:
@@ -111,6 +114,9 @@ def main():
     get_users()
   elif m.args.zdllists:
     get_lists()
+  elif m.args.sendas:
+    getLists()
+    sendAsPermissions()
   else:
     pass
 
@@ -154,6 +160,7 @@ def list_properties(chosen_list):
         authorized = permission[0]
         authorized_accounts.append(authorized)
 
+
 # With each gathered user ID, search those, among all the users and get their identities!.   
 def get_users():
   u = LDAPhandler()
@@ -171,9 +178,32 @@ def get_users():
         print account[0]
         break
 
+def sendAsPermissions():
+  u = LDAPhandler()
+  users = u.users
+  chosen_list = u.args.zdlperms
+  print "Send as permissions:\n"             
+
+  # Get 'Send as' permissions and store them on a list.
+  for props in authorized_id:
+    if 'sendAsDistList' in props[1]:
+      sendasPerm = props[1].split(' ')
+      sendasPermAuth = sendasPerm[0]
+      sendas_auth_accounts.append((props[0], sendasPermAuth))
+
+  for item in users:
+    dn = item[0]
+    attrs = item[1]
+
+    for authorized in sendas_auth_accounts:
+      if authorized[1] in attrs['zimbraId'] and 'uid' in attrs:
+        account = attrs['uid']
+        print "The user %s has the 'send as' permission for the list %s" % (account[0], authorized[0])
+        break
+
 def get_lists():
   for list in lists:
     print list
 
 if __name__ == "__main__":
-  main() 
+  main()
