@@ -57,7 +57,7 @@ Consultar qué cuentas de Zimbra tienen permisos para envíar correos a una ZDL 
 ```
 Consultar qué cuentas de Zimbra tienen el permiso "send as" ("envíar en nombre de...") sobre las ZDLs:
 ```
-./zimbra-get-zdl-perms.py -s zimbra.mydomain.com -b dc=mydomain,dc=com -u uid=zimbra,cn=admins,cn=zimbra -l mi-lista
+./zimbra-get-zdl-perms.py -s zimbra.mydomain.com -b dc=mydomain,dc=com -u uid=zimbra,cn=admins,cn=zimbra -sa 
 ```
 Listar todas las ZDLs existentes:
 ```
