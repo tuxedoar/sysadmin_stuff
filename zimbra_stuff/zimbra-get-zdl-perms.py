@@ -124,17 +124,20 @@ def getLists():
   L = LDAPhandler()
   dynamic_lists = L.dynamic_lists
   static_lists = L.static_lists
+
   # Get entries and attributes of groups.
+  list_type = "dynamic"
   for i in dynamic_lists:
     dn = i[0]
     attrs = i[1]
-        
+         
     list = attrs['cn'][0]
     idsauth = attrs.get('zimbraACE','')
     for authorized in idsauth:
       authorized_id.append((list, authorized))
-    lists.append(list)
+    lists.append((list, list_type))
 
+  list_type = "static"
   for i in static_lists:
     dn = i[0]
     attrs = i[1]
@@ -143,16 +146,10 @@ def getLists():
     idsauth = attrs.get('zimbraACE','')
     for authorized in idsauth:
       authorized_id.append((list, authorized))
-    lists.append(list)
+    lists.append((list, list_type))
 
 # Extract users IDs with permissions on the ZDL and store them on a list
 def list_properties(chosen_list):
-  # Check if chosen list is valid. 
-  if chosen_list in lists:
-    pass
-  else:
-    print "The list %s doesn't exist!." % (chosen_list)
-    sys.exit(2)
   for props in authorized_id:
     if chosen_list in props:
       if not '-sendToDistList' in props[1] and 'sendToDistList' in props[1]:
@@ -160,12 +157,17 @@ def list_properties(chosen_list):
         authorized = permission[0]
         authorized_accounts.append(authorized)
 
-
 # With each gathered user ID, search those, among all the users and get their identities!.   
 def get_users():
   u = LDAPhandler()
   users = u.users
   chosen_list = u.args.zdlperms
+
+  # Check that authorized_accounts is not empty. 
+  if len(authorized_accounts) < 1:
+    print "Sorry, the list %s was not found!." % (chosen_list)
+    sys.exit()
+
   print "\nAuthorized accounts to send mails to %s :\n " % (chosen_list)             
 
   for item in users:
@@ -182,7 +184,6 @@ def sendAsPermissions():
   u = LDAPhandler()
   users = u.users
   chosen_list = u.args.zdlperms
-  print "Send as permissions:\n"             
 
   # Get 'Send as' permissions and store them on a list.
   for props in authorized_id:
@@ -191,19 +192,21 @@ def sendAsPermissions():
       sendasPermAuth = sendasPerm[0]
       sendas_auth_accounts.append((props[0], sendasPermAuth))
 
+  print "\nZimbra 'Send as' permissions: \n\nZDL LIST \t\t\t USER\n"
   for item in users:
     dn = item[0]
     attrs = item[1]
 
-    for authorized in sendas_auth_accounts:
-      if authorized[1] in attrs['zimbraId'] and 'uid' in attrs:
+    for sendas_permission in sendas_auth_accounts:
+      if sendas_permission[1] in attrs['zimbraId'] and 'uid' in attrs:
         account = attrs['uid']
-        print "The user %s has the 'send as' permission for the list %s" % (account[0], authorized[0])
+        print "%2s \t%3s" % (sendas_permission[0], account[0])
         break
 
 def get_lists():
   for list in lists:
-    print list
+    # Print each list and its type (static or dynamic).
+    print "%s ( %s )" % (list[0], list[1])
 
 if __name__ == "__main__":
   main()
