@@ -41,6 +41,7 @@ Note that the following arguments are mandatory:
  * `--basedn`/`-b`
  * `--userdn`/`-u`
  * `--userAttrs`/`-a`
+
 The rest of them, are optional!.
 
 
