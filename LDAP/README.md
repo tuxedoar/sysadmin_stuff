@@ -5,11 +5,13 @@
 This script allows you to query an LDAP server, based on a custom set of provided attributes. The results are given in CSV format, though they
 are not written to a CSV file unless explicitly specified. 
 
-### REQUIREMENTS
+### Requirements
 This script should work with, at least, Python 2.7. Make sure you have the [python-ldap](https://pypi.python.org/pypi/python-ldap/) library, installed!.
 
 Also, note that when establishing an SSL connection, depending on the security settings in your LDAP server, you might gonna need to perform some additional
 configuration on your LDAP client!.   
+
+As a general rule, if you are able to make an LDAP query with the `ldapsearch` tool, this script should work as well!. 
 
 ### How to use it? 
 ```
@@ -45,16 +47,20 @@ Note that the following arguments are mandatory:
 The rest of them, are optional!.
 
 
-### EXAMPLES
-Make an encrypted LDAP query (note the `ldaps://` when specifying the LDAP server), and retrieve the attributes `name`, `mail` and `ipPhone`. Whenever an entry doesn't have any of these LDAP attributes, a "NULL" string, will be printed!. In addition, the search base will be `objectClass=person` and a maximum of 50 entries will be printed!.
+### Examples
+In the following example, an encrypted LDAP query (note the `ldaps://` when specifying the LDAP server) is made, and the attributes `name`, `mail` and `ipPhone` are retrieved. In addition, the search base used is `objectClass=person` and a maximum of 50 entries will be printed!.
 ```
 ./ldap-attributes-selector.py -s ldaps://somecorp.com -b "dc=somecorp,dc=com" -u "cn=Joe,ou=Users,dc=somecorp,dc=com" -a "name,mail,ipPhone" -S 50 -f objectClass=person
 ```
+
 Unlike the previous example, on the next one, the query won't be encrypted; a different LDAP filter is used and no limits on the number of results to display are given, other than the defults (500 entries): 
 ```
 ./ldap-attributes-selector.py -s ldap://somecorp.com -b "dc=somecorp,dc=com" -u "uid=zimbra,cn=admins,cn=zimbra" -a "givenName,mail,zimbraAccountStatus" -f 'objectClass=inetOrgPerson'
 ```
+
 This other example is similar to the first one, except that, this time, the retrieved results, are gonna be exported to a CSV file!: 
 ```
 ./ldap-attributes-selector.py -s ldaps://somecorp.com -b "dc=somecorp,dc=com" -u "cn=joe,ou=Users,dc=somecorp,dc=com" -a "name,mail,ipPhone" -S 50 -f objectClass=person -w users.csv
 ```
+
+In general terms, whenever an entry doesn't have any of the provided LDAP attributes, a "NULL" string, will be printed!.
