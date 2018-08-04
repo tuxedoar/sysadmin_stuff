@@ -14,6 +14,7 @@ configuration on your LDAP client!.
 As a general rule, if you are able to make an LDAP query with the `ldapsearch` tool, this script should work as well!. 
 
 ### How to use it? 
+Help output:
 ```
 Get a CSV formatted list from an LDAP database, given a custom set of provided
 attributes.
@@ -48,19 +49,22 @@ The rest of them, are optional!.
 
 
 ### Examples
-In the following example, an encrypted LDAP query (note the `ldaps://` when specifying the LDAP server) is made, and the attributes `name`, `mail` and `ipPhone` are retrieved. In addition, the search base used is `objectClass=person` and a maximum of 50 entries will be printed!.
+In the following example, an encrypted LDAP query (note the `ldaps://` when specifying the LDAP server) is made, and the attributes `name`, `mail` and `ipPhone` are retrieved. In addition, the search base used is `objectClass=person` and a maximum of 50 entries will be printed!:
 ```
 ./ldap-attributes-selector.py -s ldaps://somecorp.com -b "dc=somecorp,dc=com" -u "cn=Joe,ou=Users,dc=somecorp,dc=com" -a "name,mail,ipPhone" -S 50 -f objectClass=person
 ```
+
 
 Unlike the previous example, on the next one, the query won't be encrypted; a different LDAP filter is used and no limits on the number of results to display are given, other than the defults (500 entries): 
 ```
 ./ldap-attributes-selector.py -s ldap://somecorp.com -b "dc=somecorp,dc=com" -u "uid=zimbra,cn=admins,cn=zimbra" -a "givenName,mail,zimbraAccountStatus" -f 'objectClass=inetOrgPerson'
 ```
 
+
 This other example is similar to the first one, except that, this time, the retrieved results, are gonna be exported to a CSV file!: 
 ```
 ./ldap-attributes-selector.py -s ldaps://somecorp.com -b "dc=somecorp,dc=com" -u "cn=joe,ou=Users,dc=somecorp,dc=com" -a "name,mail,ipPhone" -S 50 -f objectClass=person -w users.csv
 ```
+
 
 In general terms, whenever an entry doesn't have any of the provided LDAP attributes, a "NULL" string, will be printed!.
