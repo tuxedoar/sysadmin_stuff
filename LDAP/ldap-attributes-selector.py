@@ -43,7 +43,7 @@ class MenuHandler:
                       help='URI formatted address (IP or domain name) of the LDAP server')
   parser.add_argument('-b', '--basedn', required=True, action='store',
                       help='Specify the searchbase or base DN of the LDAP server')
-  parser.add_argument('-u', '--userdn', required=True, action='store',
+  parser.add_argument('-u', '--userdn', required=False, action='store',
                       help='Distinguished Name (DN) of the user to bind to the LDAP directory')
   parser.add_argument('-a', '--userAttrs', required=True, action='store',
                       help='A set of comma separated LDAP attributes to list')
@@ -101,18 +101,24 @@ def LDAPsession():
   ldapadmin = args.userdn
 
   try:
-    ask_creds = getpass.getpass('\nPlease, enter your LDAP credentials: ')
-    LDAPConnection = lsession.l.simple_bind_s(ldapadmin, ask_creds)
-    if LDAPConnection:
-      print "\nSuccessful LDAP connection...!\n"
-  except ldap.UNWILLING_TO_PERFORM, e:
-    print "ERROR - %s . %s " % (e[0]['info'], e[0]['desc'])
+    # If no '-u' argument is present, perform an anonymous LDAP query!.
+    if ldapadmin:
+      ask_creds = getpass.getpass('\nPlease, enter your LDAP credentials: ')
+      LDAPConnection = lsession.l.simple_bind_s(ldapadmin, ask_creds)
+      if LDAPConnection:
+        print("\nSuccessful LDAP authentication!\n")
+    else:
+      print("\nWARNING: No user identity was given. Performing an anonymous query!\n")
+  except ldap.SERVER_DOWN as e:
+    print("ERROR - %s") % (e[0]['desc'])
+  except ldap.UNWILLING_TO_PERFORM as e:
+    print("ERROR - %s . %s ") % (e[0]['info'], e[0]['desc'])
     sys.exit()
-  except ldap.INVALID_CREDENTIALS, e:
-    print "ERROR - %s " % (e[0]['desc'])
+  except ldap.INVALID_CREDENTIALS as e:
+    print("ERROR - %s ") % (e[0]['desc'])
     sys.exit()
-  except ldap.SIZELIMIT_EXCEEDED, e:
-    print "ERROR - %s " % (e[0]['desc'])
+  except ldap.SIZELIMIT_EXCEEDED as e:
+    print("ERROR - %s ") % (e[0]['desc'])
     sys.exit()
 
    
@@ -179,7 +185,7 @@ def process_entry(dn, attrs):
       else:
         collectedUserAttrs.append('NULL')
   
-  print ','.join(collectedUserAttrs)
+  print(','.join(collectedUserAttrs))
 
 
 def writetoCSV(dn, attrs):
@@ -247,7 +253,7 @@ def ldap_paging():
     # with the entry. The keys of attrs are strings, and the associated
     # values are lists of strings.
     user_attrs = lconn.userAttrs.split(',')
-    print ';'.join(user_attrs)
+    print(';'.join(user_attrs))
     for dn, attrs in rdata:
         process_entry(dn, attrs)
 
@@ -281,7 +287,7 @@ def main():
     LDAPsession()
     ldap_paging()
   except KeyboardInterrupt:
-    print "\nExecution has been interrupted!."
+    print("\nExecution has been interrupted!.")
 
 
 if __name__ == "__main__":
