@@ -64,7 +64,7 @@ This other example is similar to the first one, except that, this time, the retr
 ./ldap-attributes-selector.py -s ldaps://somecorp.com -b "dc=somecorp,dc=com" -u "cn=joe,ou=Users,dc=somecorp,dc=com" -a "name,mail,ipPhone" -S 50 -f objectClass=person -w users.csv
 ```
 
-If no *user identity* (in DN format!) is specified ('-u' argument), an *anonymous* LDAP query is performed, as in the following example:
+If no *user identity* (in DN format!) is specified (`-u` argument), an *anonymous* LDAP query is performed, as in the following example:
 ```
 ./ldap-attributes-selector.py -s ldap://somecorp.com -b "dc=somecorp,dc=com" -a "sn,givenName,mail"
 ```
