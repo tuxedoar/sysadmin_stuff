@@ -12,10 +12,36 @@ on your Zimbra server. Also, make sure to have the  [python-ldap](https://pypi.p
 ##### Syntax
 
 ```
-Add help on usage here, later. 
+usage: zimbra-get-zdl-perms.py [-h] -s SERVER -b BASEDN -u USERDN
+                               [-l ZDLPERMS] [-sa] [-L]
+
+Query Zimbra Distribution Lists - ZDL
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SERVER, --server SERVER
+                        IP address or domain name of the Zimbra server
+  -b BASEDN, --basedn BASEDN
+                        Specify the searchbase or base DN of the Zimbra LDAP
+                        server
+  -u USERDN, --userdn USERDN
+                        DN admin user of the Zimbra LDAP server
+  -l ZDLPERMS, --zdlperms ZDLPERMS
+                        Query which Zimbra accounts have permissions to send
+                        mails to the given ZDL
+  -sa, --sendas         Query which Zimbra accounts have the 'send as'
+                        permission to send mails on behalf of the existing
+                        ZDLs
+  -L, --zdllists        List both static and dynamic existing ZDLs 
 ```
-Note that arguments such as `-s` (server), `-b` (basedn) and `-u` (admin LDAP user) , are mandatory when using this script!. Plus, you must specify either 
-of the `-l` or `-L` arguments. Otherwise, it won't work!.    
+Note that the following arguments are mandatory:
+ * `--server` / `-s`
+ * `--basedn` / `-b`
+ * `--userdn` / `-u`
+In addition, you must specify either of these two options: 
+ * `--zdlperms` / `-l` 
+ * `--zdllists` / `-L` 
+Otherwise, this script won't work!.   
 
 ##### Example
 Query which Zimbra accounts have permissions to send mails to a ZDL ("Zimbra Distribution Lists") named "my-zdl-list":
@@ -45,10 +71,38 @@ en el servidor de Zimbra. Además, asegurarse de tener instalado el paquete  [py
 
 ##### Sintáxis
 ```
-Add help on usage here, later
+usage: zimbra-get-zdl-perms.py [-h] -s SERVER -b BASEDN -u USERDN
+                               [-l ZDLPERMS] [-sa] [-L]
+
+Query Zimbra Distribution Lists - ZDL
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SERVER, --server SERVER
+                        IP address or domain name of the Zimbra server
+  -b BASEDN, --basedn BASEDN
+                        Specify the searchbase or base DN of the Zimbra LDAP
+                        server
+  -u USERDN, --userdn USERDN
+                        DN admin user of the Zimbra LDAP server
+  -l ZDLPERMS, --zdlperms ZDLPERMS
+                        Query which Zimbra accounts have permissions to send
+                        mails to the given ZDL
+  -sa, --sendas         Query which Zimbra accounts have the 'send as'
+                        permission to send mails on behalf of the existing
+                        ZDLs
+  -L, --zdllists        List both static and dynamic existing ZDLs
 ```
-Notar que los argumentos `-s` (server), `-b` (basedn) y `-u` (usuario admin de LDAP) , son obligatorios para utlizar este script!. Además, se debe utilizar 
-cualquiera de los argumentos `-l` ó `-L`. De lo contrario, no funcionará!.
+Notar que los siguientes argumentos son obligatorios:
+ * `--server` / `-s`
+ * `--basedn` / `-b`
+ * `--userdn` / `-u`
+De forma adicional, se debe especificar cualquiera de las opciones siguientes: 
+ * `--zdlperms` / `-l` 
+ * `--zdllists` / `-L` 
+De lo contrario, este script no funcionará!.   
+
+
 
 ##### Ejemplo
 Consultar qué cuentas de Zimbra tienen permisos para envíar correos a una ZDL denominada "mi-lista":
