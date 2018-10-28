@@ -38,9 +38,11 @@ Note that the following arguments are mandatory:
  * `--server` / `-s`
  * `--basedn` / `-b`
  * `--userdn` / `-u`
+
 In addition, you must specify either of these two options: 
  * `--zdlperms` / `-l` 
  * `--zdllists` / `-L` 
+
 Otherwise, this script won't work!.   
 
 ##### Example
@@ -97,9 +99,11 @@ Notar que los siguientes argumentos son obligatorios:
  * `--server` / `-s`
  * `--basedn` / `-b`
  * `--userdn` / `-u`
+
 De forma adicional, se debe especificar cualquiera de las opciones siguientes: 
  * `--zdlperms` / `-l` 
  * `--zdllists` / `-L` 
+
 De lo contrario, este script no funcionará!.   
 
 
